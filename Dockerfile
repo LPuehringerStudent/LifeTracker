@@ -22,7 +22,7 @@ ENV NODE_ENV=production
 # Copy backend build
 COPY --from=backend-builder /app/backend/dist ./dist
 COPY --from=backend-builder /app/backend/package.json /app/backend/package-lock.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 # Copy frontend build into the path the backend expects
 COPY --from=frontend-builder /app/frontend/dist/lifetracker-frontend/browser ./frontend/dist/lifetracker-frontend/browser
