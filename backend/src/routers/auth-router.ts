@@ -84,7 +84,7 @@ authRouter.post("/auth/login", async (req, res) => {
                 user = await userService.getByEmail(usernameOrEmail);
             }
 
-            if (!user || user.password_hash !== password) {
+            if (!user || !(await userService.verifyPassword(password, user.password_hash))) {
                 throw { status: StatusCodes.UNAUTHORIZED, message: "Invalid username/email or password" };
             }
 

@@ -9,10 +9,13 @@ export async function ensureSampleDataInserted(unit: Unit): Promise<void> {
         return;
     }
 
+    const bcrypt = await import("bcryptjs");
+    const hash = await bcrypt.default.hash("demo123", 12);
+
     await unit.query(
         `INSERT INTO users (username, email, password_hash, created_at)
          VALUES ($1, $2, $3, NOW())`,
-        ["demo", "demo@lifetracker.app", "demo123"]
+        ["demo", "demo@lifetracker.app", hash]
     );
 
     console.log("✅ Demo user inserted (demo / demo123)");

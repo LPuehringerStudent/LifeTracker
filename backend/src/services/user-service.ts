@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import { ServiceBase } from "./service-base";
 import { Unit } from "../db/unit";
 
@@ -8,6 +9,8 @@ export interface UserRow {
     password_hash: string;
     created_at: string;
 }
+
+const SALT_ROUNDS = 12;
 
 export class UserService extends ServiceBase {
     constructor(unit: Unit) {
@@ -35,14 +38,19 @@ export class UserService extends ServiceBase {
         );
     }
 
-    async createUser(username: string, email: string, passwordHash: string): Promise<number> {
+    async createUser(username: string, email: string, plainPassword: string): Promise<number> {
+        const hash = await bcrypt.hash(plainPassword, SALT_ROUNDS);
         const result = await this.unit.query<{ id: number }>(
             `INSERT INTO users (username, email, password_hash, created_at)
              VALUES ($1, $2, $3, NOW())
              RETURNING id`,
-            [username, email, passwordHash]
+            [username, email, hash]
         );
         return result.rows[0].id;
+    }
+
+    async verifyPassword(plainPassword: string, hash: string): Promise<boolean> {
+        return bcrypt.compare(plainPassword, hash);
     }
 
     async updateEmail(id: number, email: string): Promise<boolean> {
@@ -53,10 +61,11 @@ export class UserService extends ServiceBase {
         return result.rowCount === 1;
     }
 
-    async updatePassword(id: number, passwordHash: string): Promise<boolean> {
+    async updatePassword(id: number, plainPassword: string): Promise<boolean> {
+        const hash = await bcrypt.hash(plainPassword, SALT_ROUNDS);
         const result = await this.unit.query(
             `UPDATE users SET password_hash = $1 WHERE id = $2`,
-            [passwordHash, id]
+            [hash, id]
         );
         return result.rowCount === 1;
     }

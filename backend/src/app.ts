@@ -35,14 +35,15 @@ app.get("/api/db-test", async (_req, res) => {
     }
 });
 
-app.use(express.static(path.join(process.cwd(), "frontend", "dist", "lifetracker-frontend", "browser")));
+const staticPath = path.join(process.cwd(), "frontend", "dist", "lifetracker-frontend", "browser");
+app.use(express.static(staticPath));
 
 app.use((req, res, next) => {
     if (req.path.startsWith("/api")) {
         next();
         return;
     }
-    res.sendFile(path.join(process.cwd(), "frontend", "dist", "lifetracker-frontend", "browser", "index.html"));
+    res.sendFile(path.join(staticPath, "index.html"));
 });
 
 if (require.main === module) {
