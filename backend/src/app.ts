@@ -42,13 +42,29 @@ app.get("/api/db-test", async (_req, res) => {
 });
 
 const staticPath = path.join(process.cwd(), "frontend", "dist", "lifetracker-frontend", "browser");
-app.use(express.static(staticPath));
 
+// Serve hashed assets with long-term caching
+app.use(express.static(staticPath, {
+    maxAge: "1y",
+    immutable: true,
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith("index.html")) {
+            res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+            res.setHeader("Pragma", "no-cache");
+            res.setHeader("Expires", "0");
+        }
+    }
+}));
+
+// SPA fallback - never cache index.html
 app.use((req, res, next) => {
     if (req.path.startsWith("/api")) {
         next();
         return;
     }
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
     res.sendFile(path.join(staticPath, "index.html"));
 });
 
