@@ -1,0 +1,15 @@
+{
+  "name": "lifetracker",
+  "version": "0.1.0",
+  "description": "LifeTracker - Track what matters",
+  "scripts": {
+    "dev": "cd backend && npm run dev",
+    "frontend:serve": "cd lifetracker-frontend && ng serve",
+    "dev:full": "concurrently \"npm run dev\" \"npm run frontend:serve\"",
+    "build": "cd backend && npm run build && cd ../lifetracker-frontend && ng build",
+    "start": "cd backend && npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
