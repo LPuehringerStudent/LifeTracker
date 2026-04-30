@@ -13,6 +13,11 @@ export async function ensureTablesCreated(unit: Unit): Promise<void> {
         )
     `);
 
+    // Migration: make password_hash nullable and add OAuth columns if table already existed
+    await unit.query(`ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL`);
+    await unit.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS provider TEXT CHECK (provider IN ('google', 'github'))`);
+    await unit.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS provider_id TEXT`);
+
     await unit.query(`
         CREATE UNIQUE INDEX IF NOT EXISTS idx_users_provider ON users(provider, provider_id)
         WHERE provider IS NOT NULL
